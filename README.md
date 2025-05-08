@@ -16,6 +16,19 @@ Analyzer/
 
 ### Steps to run:
 
+## 🧩 System Requirements
+
+This project requires [FFmpeg](https://ffmpeg.org/) to extract audio from video files.
+
+### Install FFmpeg:
+
+- **WINDOWS:**
+ 
+  Download from https://ffmpeg.org
+
+  Add the bin/ folder to your system PATH
+
+
 1. Navigate to the backend directory:
    ```bash
    cd backend
