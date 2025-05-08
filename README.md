@@ -33,7 +33,7 @@ Analyzer/
 
 4. Create the required folders before starting:
    ```bash
-   mkdir -p uploads documents
+   mkdir -p uploads documents temp
    ```
 
 5. Initialize the database (run once):
