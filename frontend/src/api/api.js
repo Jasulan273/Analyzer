@@ -52,7 +52,7 @@ export const isAuthenticated = () => {
   const loginTime = localStorage.getItem('loginTime');
   if (!token || !loginTime) return false;
   const timeElapsed = Date.now() - parseInt(loginTime);
-  const sessionTime = 1
+  const sessionTime = 30
   const sessionInTime = sessionTime * 60 * 1000;
   return timeElapsed < sessionInTime;
 };
