@@ -86,3 +86,34 @@ async def download_report(request_id: int, current_user: User = Depends(get_curr
     if not os.path.exists(report_path):
         raise HTTPException(status_code=404, detail="Report not found on server")
     return FileResponse(path=report_path, filename=os.path.basename(report_path), media_type="application/pdf")
+
+
+@router.get("/history/json/{request_id}")
+async def download_json_report(
+        request_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+
+    request = db.query(AnalysisRequest).filter(
+        AnalysisRequest.id == request_id,
+        AnalysisRequest.user_id == current_user.id
+    ).first()
+
+    if not request:
+        raise HTTPException(status_code=404, detail="Запрос анализа не найден")
+
+
+    if not request.json_path:
+        raise HTTPException(status_code=404, detail="JSON отчёт недоступен для этого запроса")
+
+
+    if not os.path.exists(request.json_path):
+        raise HTTPException(status_code=404, detail="JSON файл не найден на сервере")
+
+   
+    return FileResponse(
+        request.json_path,
+        media_type='application/json',
+        filename=f"report_{request_id}.json"
+    )

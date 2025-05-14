@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { uploadFile, analyzeFile, downloadReport } from '../api/api';
-import { UploadCloud, Loader2, CheckCircle } from 'lucide-react';
+import { uploadFile, analyzeFile, downloadReport, downloadJsonReport } from '../api/api';
+import { UploadCloud, Loader2, CheckCircle, Download } from 'lucide-react';
 
 function Upload() {
   const [file, setFile] = useState(null);
@@ -26,7 +26,6 @@ function Upload() {
     setFile(f);
     setReportId(null);
   };
-  
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -74,7 +73,25 @@ function Upload() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Failed to download report. Please try again..');
+      alert('Failed to download report. Please try again.');
+    }
+  };
+
+  const handleDownloadJsonReport = async (requestId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const fileBlob = await downloadJsonReport(requestId, token);
+      const url = window.URL.createObjectURL(fileBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `report_${requestId}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download JSON report. Please try again.');
     }
   };
 
@@ -137,12 +154,20 @@ function Upload() {
           <div className="mt-6 text-center">
             <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
             <p className="text-sm text-gray-600">Analysis complete:</p>
-            <button
-              onClick={() => handleDownloadReport(reportId)}
-              className="text-blue-600 hover:underline font-medium cursor-pointer"
-            >
-              Download Report →
-            </button>
+            <div className="flex justify-center gap-4 mt-2">
+              <button
+                onClick={() => handleDownloadReport(reportId)}
+                className="text-blue-600 hover:underline font-medium cursor-pointer flex items-center gap-1"
+              >
+                <Download size={16} /> PDF
+              </button>
+              <button
+                onClick={() => handleDownloadJsonReport(reportId)}
+                className="text-blue-600 hover:underline font-medium cursor-pointer flex items-center gap-1"
+              >
+                <Download size={16} /> JSON
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -52,7 +52,7 @@ export const isAuthenticated = () => {
   const loginTime = localStorage.getItem('loginTime');
   if (!token || !loginTime) return false;
   const timeElapsed = Date.now() - parseInt(loginTime);
-  const sessionTime = 1
+  const sessionTime = 30
   const sessionInTime = sessionTime * 60 * 1000;
   return timeElapsed < sessionInTime;
 };
@@ -93,5 +93,21 @@ export const downloadReport = async (requestId, token) => {
     const errorText = await response.text();
     throw new Error(`Failed to download report: ${errorText}`);
   }
+  return await response.blob();
+};
+
+export const downloadJsonReport = async (requestId, token) => {
+  const response = await fetch(`${API_URL}/user/history/json/${requestId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Ошибка при загрузке JSON отчёта: ${errorText}`);
+  }
+  
   return await response.blob();
 };

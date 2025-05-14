@@ -25,9 +25,7 @@ TEMP_DIR = "temp"
 if not os.path.exists(TEMP_DIR):
     os.makedirs(TEMP_DIR)
 
-
 pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
-
 
 def generate_word_frequency_chart(transcription: str, output_path: str):
     words = [word.lower() for word in re.findall(r'\b\w+\b', transcription) if word.isalpha()]
@@ -56,7 +54,6 @@ def generate_word_frequency_chart(transcription: str, output_path: str):
         plt.close()
         return False
 
-
 def extract_text_insights(transcription: str):
     words = [word.lower() for word in re.findall(r'\b\w+\b', transcription) if word.isalpha()]
     words = [word for word in words if word not in STOPWORDS]
@@ -79,7 +76,6 @@ def extract_text_insights(transcription: str):
         "key_phrases": key_phrases,
         "names": names
     }
-
 
 def generate_pdf_report(analysis_result: dict, output_path: str):
     doc = SimpleDocTemplate(output_path, pagesize=letter, rightMargin=0.5 * inch, leftMargin=0.5 * inch,

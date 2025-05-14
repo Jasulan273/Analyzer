@@ -27,6 +27,7 @@ class AnalysisRequest(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     file_id = Column(Integer, ForeignKey("user_files.id"))
     report_path = Column(String)
+    json_path = Column(String)
     request_date = Column(DateTime, default=datetime.utcnow)
     user = relationship("User", back_populates="requests")
     file = relationship("UserFile")

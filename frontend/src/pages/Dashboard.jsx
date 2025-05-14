@@ -1,28 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { getUserHistory, getUserFiles, downloadUserFile, downloadReport } from '../api/api';
-import { FileText, Clock, Download } from 'lucide-react';
+import { getUserHistory, getUserFiles, downloadUserFile, downloadReport, downloadJsonReport } from '../api/api';
+import { FileText, Download } from 'lucide-react';
 
 function Dashboard() {
   const [history, setHistory] = useState([]);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const [historyRes, filesRes] = await Promise.all([
-          getUserHistory(token),
-          getUserFiles(token)
-        ]);
-        setHistory(await historyRes.json());
-        setFiles(await filesRes.json());
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, []);
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const [historyData, filesData] = await Promise.all([
+        getUserHistory(token).then(res => res.json()), // для истории
+        getUserFiles(token) // для файлов (уже содержит .json())
+      ]);
+      setHistory(historyData);
+      setFiles(filesData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  fetchData();
+}, []);
+
+  const handleDownloadJson = async (requestId, fileName) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const fileBlob = await downloadJsonReport(requestId, token);
+      const url = window.URL.createObjectURL(fileBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName || `report_${requestId}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Не удалось скачать JSON отчет. Пожалуйста, попробуйте снова.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDownloadFile = async (fileId, fileName) => {
     try {
@@ -85,13 +106,22 @@ function Dashboard() {
                       <span className="font-medium">Analyze #{item.id}</span>
                     </div>
                     {item.report_path && (
-                      <button
-                        onClick={() => handleDownloadReport(item.id, `report_${item.id}.pdf`)}
-                        className="text-green-600 hover:text-green-800 flex items-center gap-1 cursor-pointer"
-                      >
-                        <Download size={18} />
-                        Download
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => handleDownloadReport(item.id, `report_${item.id}.pdf`)}
+                          className="text-green-600 hover:text-green-800 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Download size={18} />
+                          PDF
+                        </button>
+                        <button
+                          onClick={() => handleDownloadJson(item.id, `report_${item.id}.json`)}
+                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Download size={18} />
+                          JSON
+                        </button>
+                      </div>
                     )}
                   </div>
                   <div className="text-sm text-gray-500 mt-1">
